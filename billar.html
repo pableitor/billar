@@ -153,9 +153,7 @@
       background: #c0392b;
     }
     .mic-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
+        /* Elimina position: fixed, bottom, right */
         width: 60px;
         height: 60px;
         border-radius: 50%;
@@ -165,9 +163,8 @@
         border: none;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: block;
+        margin: 20px auto 0 auto; /* Centrado debajo del reset */
     }
     .mic-btn.escuchando {
         background-color: var(--color-rojo);
@@ -238,9 +235,13 @@
       </tbody>
     </table>
 
-    <button class="reset-btn" onclick="resetear()">🔄 Reset</button>
-    <button id="mic-btn" class="mic-btn">🎤</button>
-    <p id="mic-status" class="mic-status">Toca el micro para dar una orden</p>
+    <!-- ...existing code... -->
+    <div class="botones-acciones">
+      <button class="reset-btn" onclick="resetear()">🔄 Reset</button>
+      <button id="mic-btn" class="mic-btn">🎤</button>
+      <p id="mic-status" class="mic-status">Toca el micro para dar una orden</p>
+    </div>
+    <!-- ...existing code... -->
     <p>
         <br>
     </p>
@@ -453,7 +454,7 @@
             let jugador = null;
             if (comando.includes('pablo')) jugador = 'pablo';
             if (comando.includes('raúl') || comando.includes('raul')) jugador = 'raul';
-            if (comando.includes('bistor') || comando.includes('vistor') || comando.includes('visto')) jugador = 'bistor' ;
+            if (comando.includes('bistor') || comando.includes('víctor') ) jugador = 'bistor' ;
 
             if (!jugador) {
                 micStatus.textContent = 'No reconocí el nombre del jugador.';
