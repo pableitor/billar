@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marcador Moderno</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --fuente-principal: 'Poppins', sans-serif;
+      --color-fondo: #f4f7f9;
+      --color-tarjeta: #ffffff;
+      --color-texto-principal: #2c3e50; /* Gris oscuro para el borde */
+      --color-texto-secundario: #7f8c8d;
+      --color-borde-interno: #e0e6ec;
+      --color-acento: #3498db;
+      --color-rojo: #e74c3c;
+      --color-verde: #2ecc71;
+    }
+
+    body {
+      font-family: var(--fuente-principal);
+      background: var(--color-fondo);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px 0;
+    }
+
+    .marcador {
+      width: 340px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 15px; 
+    }
+    
+    td, th {
+      padding: 10px 12px;
+      text-align: center;
+      color: var(--color-texto-principal);
+    }
+    
+    .titulo-principal {
+      font-size: 28px;
+      font-weight: 700;
+      padding-bottom: 5px;
+    }
+
+    tbody {
+      background: var(--color-tarjeta);
+      border-radius: 14px;
+      box-shadow: 
+        inset 0 0 0 2px var(--color-texto-principal),
+        0 4px 16px rgba(44, 62, 80, 0.08);
+    }
+
+    .cabecera-jugador {
+      font-size: 24px;
+      font-weight: 600;
+      background-color: var(--color-acento);
+      color: var(--color-tarjeta);
+      border-radius: 12px 12px 0 0; 
+    }
+    
+    tbody tr {
+        border-bottom: 1px solid var(--color-borde-interno);
+    }
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    td.categoria {
+      font-size: 24px;
+      font-weight: 600;
+      text-align: left;
+      color: var(--color-texto-secundario);
+    }
+    
+    .marcador-jugador {
+      margin-left: 10px;
+      color: inherit;
+      opacity: 0.85;
+    }
+
+    .contador-valor {
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    .contador-saque {
+      white-space: nowrap;
+      cursor: pointer;
+      /* SOLUCIÓN: Evita el zoom al hacer doble toque en dispositivos móviles */
+      touch-action: manipulation;
+    }
+    
+    .nombre-editable {
+      cursor: pointer;
+      border-bottom: 2px dotted rgba(255, 255, 255, 0.5);
+    }
+    
+    .input-nombre {
+      font-family: var(--fuente-principal);
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--color-tarjeta);
+      border: none;
+      width: 160px;
+      background-color: transparent;
+      border-bottom: 2px solid var(--color-tarjeta);
+    }
+    
+    .boton {
+      font-size: 24px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: none;
+      color: white;
+      transition: transform 0.1s ease;
+    }
+    .boton:active {
+      transform: scale(0.95);
+    }
+    
+    .boton-menos { background: var(--color-rojo); }
+    .boton-mas { background: var(--color-verde); }
+
+    .reset-btn {
+      display: block;
+      width: 100%;
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--color-rojo);
+      color: white;
+      transition: background-color 0.2s ease;
+    }
+    .reset-btn:active {
+      background: #c0392b;
+    }
+    .mic-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: var(--color-acento);
+        color: white;
+        font-size: 28px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .mic-btn.escuchando {
+        background-color: var(--color-rojo);
+    }
+    .mic-status {
+        text-align: center;
+        margin-top: 15px;
+        color: var(--color-texto-secundario);
+        font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="marcador">
+    <table>
+      <thead>
+        <tr>
+          <th colspan="4" class="titulo-principal">MARCADOR 🎱</th>
+        </tr>
+      </thead>
+      
+      <tbody id="jugador-pablo">
+        <tr>
+          <td colspan="4" class="cabecera-jugador">
+            <span class="nombre-editable" onclick="editarNombre(this, 'pablo')">PABLO</span><span class="marcador-jugador" id="marcador-pablo">0</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="categoria">Saque</td>
+          <td><button class="boton boton-menos boton-saque" onclick="cambiar(this,-1)" data-jugador="pablo">−</button></td>
+          <td class="contador-valor contador-saque" ondblclick="resetearSaques('pablo')"><span class="saques-perdidos">0</span> / <span class="saques-ganados">0</span></td>
+          <td><button class="boton boton-mas boton-saque" onclick="cambiar(this,1)" data-jugador="pablo">+</button></td>
+        </tr>
+        <tr><td class="categoria">Bola en Mano</td><td><button class="boton boton-menos" onclick="cambiar(this,-1)">−</button></td><td class="contador-valor valor">0</td><td><button class="boton boton-mas" onclick="cambiar(this,1)">+</button></td></tr>
+        <tr><td class="categoria">Fallos</td><td><button class="boton boton-menos" onclick="cambiar(this,-1)">−</button></td><td class="contador-valor valor">0</td><td><button class="boton boton-mas" onclick="cambiar(this,1)">+</button></td></tr>
+      </tbody>
+
+      <tbody id="jugador-raul">
+        <tr>
+          <td colspan="4" class="cabecera-jugador">
+            <span class="nombre-editable" onclick="editarNombre(this, 'raul')">RAUL</span><span class="marcador-jugador" id="marcador-raul">0</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="categoria">Saque</td>
+          <td><button class="boton boton-menos boton-saque" onclick="cambiar(this,-1)" data-jugador="raul">−</button></td>
+          <td class="contador-valor contador-saque" ondblclick="resetearSaques('raul')"><span class="saques-perdidos">0</span> / <span class="saques-ganados">0</span></td>
+          <td><button class="boton boton-mas boton-saque" onclick="cambiar(this,1)" data-jugador="raul">+</button></td>
+        </tr>
+        <tr><td class="categoria">Bola en Mano</td><td><button class="boton boton-menos" onclick="cambiar(this,-1)">−</button></td><td class="contador-valor valor">0</td><td><button class="boton boton-mas" onclick="cambiar(this,1)">+</button></td></tr>
+        <tr><td class="categoria">Fallos</td><td><button class="boton boton-menos" onclick="cambiar(this,-1)">−</button></td><td class="contador-valor valor">0</td><td><button class="boton boton-mas" onclick="cambiar(this,1)">+</button></td></tr>
+      </tbody>
+
+      <tbody id="jugador-bistor">
+        <tr>
+          <td colspan="4" class="cabecera-jugador">
+            <span class="nombre-editable" onclick="editarNombre(this, 'bistor')">BISTOR</span><span class="marcador-jugador" id="marcador-bistor">0</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="categoria">Saque</td>
+          <td><button class="boton boton-menos boton-saque" onclick="cambiar(this,-1)" data-jugador="bistor">−</button></td>
+          <td class="contador-valor contador-saque" ondblclick="resetearSaques('bistor')"><span class="saques-perdidos">0</span> / <span class="saques-ganados">0</span></td>
+          <td><button class="boton boton-mas boton-saque" onclick="cambiar(this,1)" data-jugador="bistor">+</button></td>
+        </tr>
+        <tr><td class="categoria">Bola en Mano</td><td><button class="boton boton-menos" onclick="cambiar(this,-1)">−</button></td><td class="contador-valor valor">0</td><td><button class="boton boton-mas" onclick="cambiar(this,1)">+</button></td></tr>
+        <tr><td class="categoria">Fallos</td><td><button class="boton boton-menos" onclick="cambiar(this,-1)">−</button></td><td class="contador-valor valor">0</td><td><button class="boton boton-mas" onclick="cambiar(this,1)">+</button></td></tr>
+      </tbody>
+    </table>
+
+    <button class="reset-btn" onclick="resetear()">🔄 Reset</button>
+    <button id="mic-btn" class="mic-btn">🎤</button>
+    <p id="mic-status" class="mic-status">Toca el micro para dar una orden</p>
+    <p>
+        <br>
+    </p>
+  </div>
+
+  <script>
+    const todosLosJugadores = ['pablo', 'raul', 'bistor'];
+
+    function resetearSaques(jugadorIdReseteado) {
+      if (confirm(`¿Resetear saques de este jugador y recalcular marcadores?`)) {
+        const tbody = document.getElementById(`jugador-${jugadorIdReseteado}`);
+        
+        const saquesPerdidosARestar = parseInt(tbody.querySelector('.saques-perdidos').textContent);
+
+        tbody.querySelector('.saques-perdidos').textContent = '0';
+        tbody.querySelector('.saques-ganados').textContent = '0';
+        
+        todosLosJugadores.forEach(id => {
+          if (id !== jugadorIdReseteado) {
+            const marcadorOtro = document.getElementById(`marcador-${id}`);
+            let puntuacionActual = parseInt(marcadorOtro.textContent);
+            let nuevaPuntuacion = Math.max(0, puntuacionActual - saquesPerdidosARestar);
+            marcadorOtro.textContent = nuevaPuntuacion;
+          }
+        });
+        
+        let nuevaPuntuacionReseteado = 0;
+        todosLosJugadores.forEach(id => {
+            if (id !== jugadorIdReseteado) {
+                const tbodyOtro = document.getElementById(`jugador-${id}`);
+                nuevaPuntuacionReseteado += parseInt(tbodyOtro.querySelector('.saques-perdidos').textContent);
+            }
+        });
+        document.getElementById(`marcador-${jugadorIdReseteado}`).textContent = nuevaPuntuacionReseteado;
+
+        guardarEstado();
+      }
+    }
+
+    function guardarEstado() {
+      const estado = {};
+      todosLosJugadores.forEach(jugadorId => {
+        const tbody = document.getElementById(`jugador-${jugadorId}`);
+        estado[jugadorId] = {
+          nombre: tbody.querySelector('.nombre-editable').textContent,
+          marcador: document.getElementById(`marcador-${jugadorId}`).textContent,
+          saquesPerdidos: tbody.querySelector('.saques-perdidos').textContent,
+          saquesGanados: tbody.querySelector('.saques-ganados').textContent,
+          bolaEnMano: tbody.querySelectorAll('.valor')[0].textContent,
+          fallos: tbody.querySelectorAll('.valor')[1].textContent
+        };
+      });
+      localStorage.setItem('marcadorDatos', JSON.stringify(estado));
+    }
+
+    function cargarEstado() {
+      const datosGuardados = localStorage.getItem('marcadorDatos');
+      if (datosGuardados) {
+        const estado = JSON.parse(datosGuardados);
+        todosLosJugadores.forEach(jugadorId => {
+          const datosJugador = estado[jugadorId];
+          if (datosJugador) {
+            const tbody = document.getElementById(`jugador-${jugadorId}`);
+            tbody.querySelector('.nombre-editable').textContent = datosJugador.nombre;
+            document.getElementById(`marcador-${jugadorId}`).textContent = datosJugador.marcador;
+            tbody.querySelector('.saques-perdidos').textContent = datosJugador.saquesPerdidos;
+            tbody.querySelector('.saques-ganados').textContent = datosJugador.saquesGanados;
+            tbody.querySelectorAll('.valor')[0].textContent = datosJugador.bolaEnMano;
+            tbody.querySelectorAll('.valor')[1].textContent = datosJugador.fallos;
+          }
+        });
+      }
+    }
+
+    function editarNombre(spanNombre) {
+      const nombreActual = spanNombre.textContent;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = nombreActual;
+      input.className = 'input-nombre';
+      spanNombre.replaceWith(input);
+      input.focus();
+      input.select();
+      const guardar = () => {
+        const nuevoNombre = input.value.trim().toUpperCase();
+        spanNombre.textContent = nuevoNombre || nombreActual;
+        input.replaceWith(spanNombre);
+        guardarEstado();
+      };
+      input.addEventListener('blur', guardar);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') guardar();
+        else if (e.key === 'Escape') {
+          input.value = nombreActual;
+          guardar();
+        }
+      });
+    }
+
+    function cambiar(btn, delta) {
+      const isSaqueButton = btn.classList.contains('boton-saque');
+      const row = btn.closest('tr');
+
+      if (isSaqueButton) {
+        if (delta === 1) {
+          const saquesGanados = row.querySelector('.saques-ganados');
+          saquesGanados.textContent = parseInt(saquesGanados.textContent) + 1;
+        } else {
+          const saquesPerdidos = row.querySelector('.saques-perdidos');
+          saquesPerdidos.textContent = parseInt(saquesPerdidos.textContent) + 1;
+        }
+      } else {
+        const valorTd = row.querySelector(".valor");
+        let valor = parseInt(valorTd.textContent);
+        valor = Math.max(0, valor + delta);
+        valorTd.textContent = valor;
+      }
+
+      if (isSaqueButton) {
+        const jugadorActual = btn.dataset.jugador;
+        if (delta === 1) {
+          const marcadorJugador = document.getElementById('marcador-' + jugadorActual);
+          marcadorJugador.textContent = parseInt(marcadorJugador.textContent) + 1;
+        } else if (delta === -1) {
+          todosLosJugadores.forEach(jugador => {
+            if (jugador !== jugadorActual) {
+              const marcadorOtro = document.getElementById('marcador-' + jugador);
+              marcadorOtro.textContent = parseInt(marcadorOtro.textContent) + 1;
+            }
+          });
+        }
+      }
+      guardarEstado();
+    }
+
+    function resetear() {
+      if (confirm('¿Seguro que quieres borrar TODOS los datos y empezar de cero?')) {
+        document.querySelectorAll(".valor, .marcador-jugador, .saques-ganados, .saques-perdidos").forEach(el => el.textContent = "0");
+        localStorage.removeItem('marcadorDatos');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarEstado);
+    // ===============================================
+    // ===== CÓDIGO NUEVO PARA CONTROL POR VOZ =====
+    // ===============================================
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Comprueba si el navegador soporta la API de reconocimiento de voz
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Tu navegador no soporta el reconocimiento de voz. Prueba con Chrome.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        const micBtn = document.getElementById('mic-btn');
+        const micStatus = document.getElementById('mic-status');
+
+        // Configuración del reconocimiento
+        recognition.lang = 'es-ES'; // ¡Importante! Ponerlo en español
+        recognition.continuous = false; // Solo escucha una orden a la vez
+        recognition.interimResults = false;
+
+        // Cuando el usuario pulsa el botón del micrófono
+        micBtn.addEventListener('click', () => {
+            if (micBtn.classList.contains('escuchando')) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    micStatus.textContent = 'Error al iniciar. Inténtalo de nuevo.';
+                    console.error(error);
+                }
+            }
+        });
+
+        // Eventos del reconocimiento
+        recognition.onstart = () => {
+            micBtn.classList.add('escuchando');
+            micStatus.textContent = 'Escuchando...';
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('escuchando');
+
+            // Retrasamos la restauración del mensaje original para dar tiempo a leer el resultado
+            setTimeout(() => {
+                // Solo restauramos el mensaje si el usuario no ha vuelto a pulsar el botón
+                if (!micBtn.classList.contains('escuchando')) {
+                    micStatus.textContent = 'Toca el micro para dar una orden';
+                }
+            }, 2500); // Esperamos 2.5 segundos antes de limpiar el estado
+        };
+
+        recognition.onerror = (event) => {
+            micStatus.textContent = `Error: ${event.error}. Intenta de nuevo.`;
+        };
+
+        // ¡LO MÁS IMPORTANTE! Cuando se detecta un resultado
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.toLowerCase().trim();
+            micStatus.textContent = `He entendido: "${transcript}"`;
+            procesarComandoVoz(transcript);
+        };
+
+        function procesarComandoVoz(comando) {
+            // Normalizamos el comando para que sea más fácil de procesar
+            let jugador = null;
+            if (comando.includes('pablo')) jugador = 'pablo';
+            if (comando.includes('raúl') || comando.includes('raul')) jugador = 'raul';
+            if (comando.includes('bistor') || comando.includes('vistor') || comando.includes('visto')) jugador = 'bistor' ;
+
+            if (!jugador) {
+                micStatus.textContent = 'No reconocí el nombre del jugador.';
+                return;
+            }
+
+            // Buscamos el elemento tbody del jugador
+            const tbodyJugador = document.getElementById(`jugador-${jugador}`);
+            if (!tbodyJugador) return;
+
+            let boton;
+
+            // Analizamos la acción
+            if (comando.includes('gana saque') || comando.includes('saca y gana')) {
+                boton = tbodyJugador.querySelector('.boton-mas.boton-saque');
+                if (boton) cambiar(boton, 1);
+                
+            } else if (comando.includes('pierde saque') || comando.includes('falla el saque')) {
+                boton = tbodyJugador.querySelector('.boton-menos.boton-saque');
+                if (boton) cambiar(boton, -1);
+
+            } else if (comando.includes('bola en mano') || comando.includes('falta')) {
+                // Asumimos que "bola en mano" suma un punto.
+                boton = tbodyJugador.querySelectorAll('.boton-mas')[1]; // El segundo botón "+"
+                if (boton) cambiar(boton, 1);
+
+            } else if (comando.includes('quita bola en mano')) {
+                boton = tbodyJugador.querySelectorAll('.boton-menos')[1]; // El segundo botón "-"
+                if (boton) cambiar(boton, -1);
+
+            } else if (comando.includes('fallo') || comando.includes('falla')) {
+                boton = tbodyJugador.querySelectorAll('.boton-mas')[2]; // El tercer botón "+"
+                if (boton) cambiar(boton, 1);
+            
+            } else if (comando.includes('quita fallo')) {
+                boton = tbodyJugador.querySelectorAll('.boton-menos')[2]; // El tercer botón "-"
+                if (boton) cambiar(boton, -1);
+
+            } else {
+                micStatus.textContent = 'Comando no reconocido. Prueba con "Pablo gana saque".';
+            }
+        }
+    });
+  </script>
+</body>
+</html>
